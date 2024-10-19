@@ -1,0 +1,47 @@
+{#include base-template}
+    {#title}Patient edit{/title}
+    {#body}
+
+        <a href="/">All Patients</a>
+        <br>
+        <br>
+
+        <h2>{isEdit ? 'Edit Patient Data' : 'Patient Registration Form'}</h2>
+        <form class="row g-3" method="POST" action="{isEdit ? '/update' : '/create'}">
+            <input type="hidden" name="inputPatientId" value="{onePatient.id}" />
+
+            <div class="col-md-6">
+                <label for="inputPatientFirstName" class="form-label">First name</label>
+                <input type="text" class="form-control" id="inputPatientFirstName" name="inputPatientFirstName" value="{onePatient.firstName}" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputPatientLastName" class="form-label">Last name</label>
+                <input type="text" class="form-control" id="inputPatientLastName" name="inputPatientLastName" value="{onePatient.lastName}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="inputPatientDob" class="form-label">DOB</label>
+                <input type="date" class="form-control" id="inputPatientDob" name="inputPatientDob" value="{onePatient.dob}" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputPatientPhone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="inputPatientPhone" name="inputPatientPhone" value="{onePatient.phone}" required>
+            </div>
+
+            <div class="col-md-2">
+                <label for="inputPatientGender" class="form-label">Gender</label>
+                <select class="form-select" id="inputPatientGender" name="inputPatientGender" required>
+                    <option selected>Choose...</option>
+                    <option value="M" {#if onePatient.gender == 'M'}selected{/if}>Male</option>
+                    <option value="F" {#if onePatient.gender == 'F'}selected{/if}>Female</option>
+                </select>
+            </div>
+
+            <br>
+
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Save patient</button>
+            </div>
+        </form>
+    {/body}
+{/include}
