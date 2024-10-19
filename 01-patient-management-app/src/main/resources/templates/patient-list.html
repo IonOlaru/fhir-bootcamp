@@ -18,6 +18,23 @@
     <br>
     <br>
 
+    <!-- Search Form -->
+    <form class="row g-3" action="/search" method="GET">
+        <div class="col-md-4">
+            <label for="searchName" class="form-label">Search by Name</label>
+            <input type="text" class="form-control" id="searchName" name="name" placeholder="Enter name">
+        </div>
+        <div class="col-md-4">
+            <label for="searchPhone" class="form-label">Search by Phone</label>
+            <input type="text" class="form-control" id="searchPhone" name="phone" placeholder="Enter phone number">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <br>
+
     {!<button class="btn btn-success btn-sm" id="show-toast">Show Toast</button>!}
 
 {!    <div style="padding-bottom: 20px;">
@@ -44,7 +61,7 @@
         <tr>
             <td>{it_count}</td>
             <td>{it.id}</td>
-            <td>{it.firstName}</td>
+            <td>{it.firstName}{#if !it.otherFirstNamesAsString.isEmpty()} ({it.otherFirstNamesAsString}){/if}</td>
             <td>{it.lastName}</td>
             <td>{it.gender}</td>
             <td>{it.dob}</td>

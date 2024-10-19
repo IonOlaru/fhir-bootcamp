@@ -1,6 +1,5 @@
 package com.luminatehealth.fhir.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luminatehealth.fhir.client.FhirClientPatient;
 import com.luminatehealth.fhir.convertors.FHIRPatientToDTOConverter;
 import com.luminatehealth.fhir.dto.PatientDto;
@@ -13,7 +12,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
@@ -129,4 +127,15 @@ public class PatientController {
 
     }
 
+    @GET
+    @Path("/search")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance searchPatients(@QueryParam("name") String name, @QueryParam("phone") String phone) {
+        Bundle bundle = fhirClientPatient.searchPatients(name, phone);
+        List<PatientDto> patients = bundle.getEntry()
+                .stream()
+                .map(x -> converter.convert((Patient) x.getResource()))
+                .collect(Collectors.toList());
+        return patientListTemplate.instance().data("patients", patients);
+    }
 }

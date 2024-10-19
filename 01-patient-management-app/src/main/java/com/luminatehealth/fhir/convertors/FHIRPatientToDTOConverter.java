@@ -9,6 +9,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FHIRPatientToDTOConverter implements EntityConverter<Patient, PatientDto> {
 
@@ -19,6 +21,7 @@ public class FHIRPatientToDTOConverter implements EntityConverter<Patient, Patie
                 .id(patient.getIdPart())
                 .lastName(getLastName(patient))
                 .firstName(getFirstName(patient))
+                .otherFirstNames(getOtherFirstNames(patient))
                 .phone(getPhone(patient))
                 .dob(patient.getBirthDate() != null ? TimeUtils.toString(patient.getBirthDate()) : null)
                 .gender(patient.getGender() != null ? patient.getGender().toString().substring(0, 1) : null)
@@ -71,5 +74,12 @@ public class FHIRPatientToDTOConverter implements EntityConverter<Patient, Patie
             return patient.getNameFirstRep().getGiven().get(0).getValue();
         }
         return null;
+    }
+
+    private List<String> getOtherFirstNames(Patient patient) {
+        if (patient.getNameFirstRep() != null && patient.getNameFirstRep().getGiven() != null && !patient.getNameFirstRep().getGiven().isEmpty()) {
+            return patient.getNameFirstRep().getGiven().stream().skip(1).map(PrimitiveType::getValue).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 }
