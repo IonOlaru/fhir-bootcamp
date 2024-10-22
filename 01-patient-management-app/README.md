@@ -14,7 +14,7 @@ Start the app
 ```
 ./gradlew quarkusRun
 ```
-the output should lok like
+the output should look like this
 ```
 $ ./gradlew quarkusRun
 __  ____  __  _____   ___  __ ____  ______ 
