@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
@@ -25,6 +26,9 @@ public class PatientController {
 
     private static final Logger log = LoggerFactory.getLogger(PatientController.class);
     private static final FHIRPatientToDTOConverter converter = new FHIRPatientToDTOConverter();
+
+    @ConfigProperty(name = "fhir.server.base")
+    String fhirServeryUrl;
 
     @Inject
     @Location("patient-form.html")
@@ -47,7 +51,9 @@ public class PatientController {
                 .map(x -> converter.convert((Patient) x.getResource()))
                 .collect(Collectors.toList());
 
-        return patientListTemplate.instance().data("patients", patients);
+        return patientListTemplate.instance()
+                .data("patients", patients)
+                .data("fhirServerUrl", fhirServeryUrl);
     }
 
     @GET
@@ -136,6 +142,8 @@ public class PatientController {
                 .stream()
                 .map(x -> converter.convert((Patient) x.getResource()))
                 .collect(Collectors.toList());
-        return patientListTemplate.instance().data("patients", patients);
+        return patientListTemplate.instance()
+                .data("patients", patients)
+                .data("fhirServerUrl", fhirServeryUrl);
     }
 }
