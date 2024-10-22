@@ -37,7 +37,7 @@ public abstract class LiteFhirClient<T extends DomainResource> {
         iGenericClient = ctx.newRestfulGenericClient(serverBase);
     }
 
-    public T read(Class<T> klass, String id) {
+    public T read(String id, Class<T> klass) {
         return iGenericClient.read().resource(klass).withId(id).execute();
     }
 

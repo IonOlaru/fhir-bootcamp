@@ -35,6 +35,14 @@
 
     <br>
 
+    {#if deletedId}
+        <div class="container mt-5">
+            <div class="alert alert-danger">
+                <b>Deleted:</b> <i>{deletedId}</i>
+            </div>
+        </div>
+    {/if}
+
     {!<button class="btn btn-success btn-sm" id="show-toast">Show Toast</button>!}
 
 {!    <div style="padding-bottom: 20px;">
@@ -68,7 +76,7 @@
             <td>{it.phone}</td>
             <td style="text-align: right;">
                 <a href="/edit/{it.id}" title="Edit patient"><i class="bi bi-file-earmark-text"></i></a>
-                <a href="/delete?id={it.id}" title="Delete patient"><i class="bi bi-trash"></i></a>
+                <a href="/delete/{it.id}" title="Delete patient"><i class="bi bi-trash"></i></a>
             </td>
         </tr>
         {/each}

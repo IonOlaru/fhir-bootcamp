@@ -43,7 +43,7 @@ public class PatientController {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance patientsList() {
+    public TemplateInstance patientsList(@QueryParam("deletedOK") String deletedId) {
         Bundle bundle = fhirClientPatient.getAll(20, 0);
 
         List<PatientDto> patients = bundle.getEntry()
@@ -53,7 +53,7 @@ public class PatientController {
 
         return patientListTemplate.instance()
                 .data("patients", patients)
-                .data("fhirServerUrl", fhirServeryUrl);
+                .data("fhirServerUrl", fhirServeryUrl).data("deletedId", deletedId);
     }
 
     @GET
@@ -62,12 +62,28 @@ public class PatientController {
     public TemplateInstance patientEditForm(@PathParam("id") String id) {
         log.info("Loading patient info by id: {}", id);
 
-        Patient patient = fhirClientPatient.read(Patient.class, id);
+        Patient patient = fhirClientPatient.read(id, Patient.class);
         PatientDto onePatientDto = converter.convert(patient);
 
         log.info("{}", onePatientDto);
 
         return patientEdit.instance().data("onePatient", onePatientDto).data("isEdit", true);
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/delete/{id}")
+    public Response patientDelete(@PathParam("id") String id, @Context UriInfo uriInfo) {
+        log.info("Deleting patient info by id: {}", id);
+        Patient patient = fhirClientPatient.read(id, Patient.class);
+        Patient deletedPatient = fhirClientPatient.delete(id, patient);
+        log.info("Patient with id: {} has been deleted", id);
+
+        return Response.seeOther(uriInfo.getBaseUriBuilder()
+                        .path("/")
+                        .queryParam("deletedOK", id)
+                        .build())
+                .build();
     }
 
     @GET
