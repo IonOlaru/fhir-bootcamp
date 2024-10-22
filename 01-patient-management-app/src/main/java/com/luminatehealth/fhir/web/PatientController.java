@@ -160,6 +160,7 @@ public class PatientController {
                 .collect(Collectors.toList());
         return patientListTemplate.instance()
                 .data("patients", patients)
-                .data("fhirServerUrl", fhirServeryUrl);
+                .data("fhirServerUrl", fhirServeryUrl)
+                .data("deletedId", null);
     }
 }
