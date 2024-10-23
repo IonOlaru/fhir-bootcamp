@@ -30,6 +30,9 @@ public class PatientController {
     @ConfigProperty(name = "fhir.server.base")
     String fhirServeryUrl;
 
+    @ConfigProperty(name = "fhir.client.queryLimit", defaultValue = "20")
+    Integer queryLimit;
+
     @Inject
     @Location("patient-form.html")
     Template patientEdit;
@@ -43,17 +46,25 @@ public class PatientController {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance patientsList(@QueryParam("deletedOK") String deletedId) {
-        Bundle bundle = fhirClientPatient.getAll(20, 0);
+    public TemplateInstance patientsList(@QueryParam("deletedOK") String deletedId, @QueryParam("page") Long page) {
+        Bundle bundle = fhirClientPatient.getAll(queryLimit, page == null ? 0 : queryLimit * page.intValue());
 
         List<PatientDto> patients = bundle.getEntry()
                 .stream()
                 .map(x -> converter.convert((Patient) x.getResource()))
                 .collect(Collectors.toList());
 
+        int nextPage = page == null ? 1 : (int)(page + 1);
+        if (patients.size() < queryLimit)
+            nextPage = 0;
+
         return patientListTemplate.instance()
                 .data("patients", patients)
-                .data("fhirServerUrl", fhirServeryUrl).data("deletedId", deletedId);
+                .data("fhirServerUrl", fhirServeryUrl).data("deletedId", deletedId)
+                .data("page", page == null ? 0 : page)
+                .data("previousPage", page == null || page == 0 ? 0 : page - 1)
+                .data("countFrom", page == null ? 0 : page * queryLimit)
+                .data("nextPage", nextPage);
     }
 
     @GET
@@ -152,15 +163,25 @@ public class PatientController {
     @GET
     @Path("/search")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance searchPatients(@QueryParam("name") String name, @QueryParam("phone") String phone) {
+    public TemplateInstance searchPatients(@QueryParam("name") String name, @QueryParam("phone") String phone, @QueryParam("page") Long page) {
         Bundle bundle = fhirClientPatient.searchPatients(name, phone);
+
         List<PatientDto> patients = bundle.getEntry()
                 .stream()
                 .map(x -> converter.convert((Patient) x.getResource()))
                 .collect(Collectors.toList());
+
+        int nextPage = page == null ? 1 : (int)(page + 1);
+        if (patients.size() < queryLimit)
+            nextPage = 0;
+
         return patientListTemplate.instance()
                 .data("patients", patients)
                 .data("fhirServerUrl", fhirServeryUrl)
-                .data("deletedId", null);
+                .data("deletedId", null)
+                .data("page", page == null ? 0 : page)
+                .data("previousPage", page == null || page == 0 ? 0 : page - 1)
+                .data("countFrom", page == null ? 0 : page * queryLimit)
+                .data("nextPage", nextPage);
     }
 }

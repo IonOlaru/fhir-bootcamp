@@ -11,6 +11,9 @@
 <body>
 
 <div class="container">
+    <a href="/">All Patients</a>
+    <br>
+    <br>
 
     <h1 class="text-center">Patients list</h1>
     <p class="text-muted fs-6">{fhirServerUrl}</p>
@@ -49,6 +52,21 @@
         Total patients: 908,392
     </div>
 !}
+
+    <p>
+        {#if page gt 0}
+            <a href="/?page={previousPage}"><button class="btn btn-primary btn-sm">Previous page</button></a>
+        {#else}
+            <button class="btn btn-primary btn-sm disabled">Previous page</button>
+        {/if}
+
+        {#if nextPage gt 0}
+            <a href="/?page={nextPage}"><button class="btn btn-primary btn-sm">Next page</button></a>
+        {#else}
+            <button class="btn btn-primary btn-sm disabled">Next page</button>
+        {/if}
+    </p>
+
     <table class="table table-sm table-hover">
         <thead>
         <tr style="background-color: lightgrey;">
@@ -67,7 +85,7 @@
         {! -- START ITERATING !}
         {#each patients}
         <tr>
-            <td>{it_count}</td>
+            <td>{it_count + (countFrom)}</td>
             <td>{it.id}</td>
             <td>{it.firstName}{#if !it.otherFirstNamesAsString.isEmpty()} ({it.otherFirstNamesAsString}){/if}</td>
             <td>{it.lastName}</td>
