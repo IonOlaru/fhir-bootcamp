@@ -14,6 +14,7 @@ val quarkusPlatformVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+
     implementation("io.quarkiverse.qute.web:quarkus-qute-web")
     implementation("io.quarkus:quarkus-resteasy")
     implementation("io.quarkus:quarkus-resteasy-client-jackson")

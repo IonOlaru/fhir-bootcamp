@@ -1,0 +1,150 @@
+{#include base-template}
+    {#title}Patient info{/title}
+    {#body}
+        <h1>Epic patient info...</h1>
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Patient ID:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.id}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>First name:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.firstName}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Other first names:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.otherFirstNames}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Last name:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.lastName}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>DOB:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.dob}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Phone:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.phone}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Gender:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.gender}
+                </div>
+            </div>
+        </div>
+
+        {!MEDICATIONS!}
+        <div>
+            <h4>Medications</h4>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr style="background-color: lightgrey;">
+                    <th scope="row">#</th>
+                    <th scope="row">Reference</th>
+                    <th scope="row">Instructions</th>
+                    <th scope="row">Text</th>
+                    <th scope="row"></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {! -- START ITERATING !}
+                {#each patientMedications}
+                <tr>
+                    <td>{it_count}</td>
+                    <td>{it.reference}</td>
+                    <td>{it.instructions}</td>
+                    <td>{it.text}</td>
+                </tr>
+                {/each}
+                {! -- END ITERATING !}
+                </tbody>
+            </table>
+        </div>
+
+        {!LAB_RESULTS!}
+        <div>
+            <h4>Lab Results</h4>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr style="background-color: lightgrey;">
+                    <th scope="row">#</th>
+                    <th scope="row">Text</th>
+                    <th scope="row">Date/Time</th>
+                    <th scope="row">Value</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {! -- START ITERATING !}
+                {#each laboratoryObservations}
+                <tr>
+                    <td>{it_count}</td>
+                    <td>{it.text}</td>
+                    <td>{it.effectiveDateTime}</td>
+                    <td>{it.value} {it.unit}</td>
+                </tr>
+                {/each}
+                {! -- END ITERATING !}
+                </tbody>
+            </table>
+        </div>
+
+        {!LAB_RESULTS VITAL SIGNS!}
+        <div>
+            <h4>Vital signs</h4>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr style="background-color: lightgrey;">
+                    <th scope="row">#</th>
+                    <th scope="row">Text</th>
+                    <th scope="row">Date/Time</th>
+                    <th scope="row">Value</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {! -- START ITERATING !}
+                {#each vitalSignsObservations}
+                <tr>
+                    <td>{it_count}</td>
+                    <td>{it.text}</td>
+                    <td>{it.effectiveDateTime}</td>
+                    <td>{it.value} {it.unit}</td>
+                </tr>
+                {/each}
+                {! -- END ITERATING !}
+                </tbody>
+            </table>
+        </div>
+
+    {/body}
+{/include}

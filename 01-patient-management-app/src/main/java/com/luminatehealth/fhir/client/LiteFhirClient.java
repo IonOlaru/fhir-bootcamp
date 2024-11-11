@@ -6,10 +6,7 @@ import ca.uhn.fhir.rest.api.SortOrderEnum;
 import ca.uhn.fhir.rest.api.SortSpec;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.instance.model.api.IIdType;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.DomainResource;
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +14,7 @@ import java.util.Map;
 public abstract class LiteFhirClient<T extends DomainResource> {
 
     public static final String DEFAULT_FHIR_SERVER = "https://hapi.fhir.org/baseR4";
-    public static final int FHIR_CLIENT_TIMEOUT = 5000;
+    public static final int FHIR_CLIENT_TIMEOUT = 20000;
 
     protected final IGenericClient iGenericClient;
 
