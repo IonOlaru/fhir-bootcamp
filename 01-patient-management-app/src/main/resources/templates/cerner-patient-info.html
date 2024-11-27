@@ -1,0 +1,66 @@
+{#include base-template}
+    {#title}Cerner info{/title}
+    {#body}
+        <h1>Cerner patient info...</h1>
+
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Patient ID:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.id}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>First name:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.firstName}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Other first names:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.otherFirstNames}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Last name:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.lastName}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>DOB:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.dob}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Phone:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.phone}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end">
+                    <strong>Gender:</strong>
+                </div>
+                <div class="col-6 text-start">
+                    {patient.gender}
+                </div>
+            </div>
+        </div>
+
+    {/body}
+{/include}

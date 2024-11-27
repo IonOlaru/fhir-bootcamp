@@ -11,9 +11,10 @@ public interface TokenClient {
 
     @POST
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
-    String requestToken(
+    String requestEpicToken(
             @FormParam("grant_type") String grantType,
             @FormParam("code") String code,
             @FormParam("redirect_uri") String redirectUri,
-            @FormParam("client_id") String clientId);
+            @FormParam("client_id") String clientId,
+            @FormParam("client_secret") String clientSecret);
 }

@@ -3,18 +3,25 @@ package com.luminatehealth.fhir.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luminatehealth.fhir.client.TokenClient;
+import com.luminatehealth.fhir.dto.CernerOAuthTokenResponse;
 import com.luminatehealth.fhir.dto.EpicOAuthTokenResponse;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 
 @ApplicationScoped
 public class TokenService {
 
+    private static final Logger log = LoggerFactory.getLogger(TokenService.class);
+
+    // EPIC
     @ConfigProperty(name = "epic_oauth_client_id")
     String EPIC_OAUTH_CLIENT_ID;
 
@@ -30,13 +37,21 @@ public class TokenService {
     @ConfigProperty(name = "epic_oauth_grant_type")
     String EPIC_OAUTH_GRANT_TYPE;
 
+    // CERNER
+    @ConfigProperty(name = "cerner_oauth_grant_type")
+    String CERNER_OAUTH_GRANT_TYPE;
+
+    @ConfigProperty(name = "cerner_redirect_uri")
+    String CERNER_REDIRECT_URI;
+
+    @ConfigProperty(name = "cerner_oauth_client_id")
+    String CERNER_OAUTH_CLIENT_ID;
 
     @RestClient
     private TokenClient tokenServiceClient;
 
-    public String getToken(String code) {
-        return tokenServiceClient.requestToken(EPIC_OAUTH_GRANT_TYPE, code, EPIC_REDIRECT_URI, EPIC_OAUTH_CLIENT_ID);
-    }
+    @Inject
+    FhirServerConfigService fhirServerConfigService;
 
     public String generateRedirectUrl() throws URISyntaxException {
         return new URIBuilder(EPIC_SMART_AUTH_URL)
@@ -51,12 +66,16 @@ public class TokenService {
                 .toString();
     }
 
-    public EpicOAuthTokenResponse exchangeCodeForToken(String oAuthCode) throws ParseException, JsonProcessingException {
-        return getEpicOAuthResponse(getToken(oAuthCode));
+    // epic
+    public EpicOAuthTokenResponse exchangeCodeForToken(String code) throws JsonProcessingException {
+        String token = tokenServiceClient.requestEpicToken(EPIC_OAUTH_GRANT_TYPE, code, EPIC_REDIRECT_URI, EPIC_OAUTH_CLIENT_ID, "");
+        return new ObjectMapper().readValue(token, EpicOAuthTokenResponse.class);
     }
 
-    public EpicOAuthTokenResponse getEpicOAuthResponse(String jsonString) throws ParseException, JsonProcessingException {
-        return new ObjectMapper().readValue(jsonString, EpicOAuthTokenResponse.class);
+    // cerner
+    public CernerOAuthTokenResponse exchangeCernerCodeForToken(String tokenEndpoint, String code) throws IOException {
+        String token = fhirServerConfigService.exchangeCodeForToken(tokenEndpoint, CERNER_OAUTH_GRANT_TYPE, code, CERNER_REDIRECT_URI, CERNER_OAUTH_CLIENT_ID, "");
+        return new ObjectMapper().readValue(token, CernerOAuthTokenResponse.class);
     }
 
 }

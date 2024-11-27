@@ -21,6 +21,7 @@ dependencies {
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-smallrye-health")
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
+    implementation("io.quarkus:quarkus-undertow")
 
     // HAPI FHIR
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:${property("hapiFhirVersion")}")
