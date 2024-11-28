@@ -71,8 +71,7 @@ public class CernerController {
         String fhirServerUrl = sessionService.getCernerFhirServerUrl();
         String accessToken = sessionService.getCernerAccessToken();
 
-        // ToDo: no need to create a new object all the time, just get it from a cache by URL
-        LiteFhirClientWithAuthToken<Patient> liteFhirClientWithAuthToken = new LiteFhirClientWithAuthToken(fhirServerUrl);
+        LiteFhirClientWithAuthToken<Patient> liteFhirClientWithAuthToken = LiteFhirClientWithAuthToken.getFhirServer(fhirServerUrl);
         Patient patient = liteFhirClientWithAuthToken.read(patientId, Patient.class, accessToken);
 
         PatientDto patientDto = patientConverter.convert(patient);
