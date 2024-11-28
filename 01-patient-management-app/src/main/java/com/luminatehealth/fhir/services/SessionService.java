@@ -10,6 +10,7 @@ public class SessionService {
     public static final String SESSION_CERNER_FHIR_SERVER_URL = "SESSION_CERNER_FHIR_SERVER_URL";
     public static final String SESSION_CERNER_TOKEN_ENDPOINT = "SESSION_CERNER_TOKEN_ENDPOINT";
     public static final String SESSION_CERNER_ACCESS_TOKEN = "SESSION_CERNER_ACCESS_TOKEN";
+    public static final String SESSION_CERNER_PATIENT_BANNER = "SESSION_CERNER_PATIENT_BANNER";
 
     @Inject
     HttpServletRequest request;
@@ -39,6 +40,15 @@ public class SessionService {
 
     public String getCernerTokenEndpoint() {
         return request.getSession().getAttribute(SESSION_CERNER_TOKEN_ENDPOINT).toString();
+    }
+
+    // Cerner Patient Banner
+    public void setCernerPatientBanner(boolean cernerPatientBanner) {
+        request.getSession().setAttribute(SESSION_CERNER_PATIENT_BANNER, cernerPatientBanner);
+    }
+
+    public boolean getCernerPatientBanner() {
+        return Boolean.TRUE.equals(request.getSession().getAttribute(SESSION_CERNER_PATIENT_BANNER));
     }
 
 }

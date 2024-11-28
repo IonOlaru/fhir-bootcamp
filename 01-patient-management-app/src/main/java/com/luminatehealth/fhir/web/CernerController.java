@@ -76,43 +76,69 @@ public class CernerController {
         Patient patient = liteFhirClientWithAuthToken.read(patientId, Patient.class, accessToken);
 
         PatientDto patientDto = patientConverter.convert(patient);
-        return Response.ok(templateInstance.data("patient", patientDto)).build();
+        return Response.ok(
+                templateInstance
+                        .data("patient", patientDto)
+                        .data("showBanner", sessionService.getCernerPatientBanner())
+        ).build();
+    }
+
+    // iss + launch
+    private Response handleIssAndLaunch(String iss, String launch) throws IOException, URISyntaxException {
+        log.info("Handling iss:{}, launch:{}", iss, launch);
+
+        JsonNode serverInfo = fhirServerConfigService.fetchFhirServerConfig(iss);
+        String authEndpoint = serverInfo.get("authorization_endpoint").textValue();
+        String tokenEndpoint = serverInfo.get("token_endpoint").textValue();
+
+        sessionService.setCernerTokenEndpoint(tokenEndpoint);
+        sessionService.setCernerFhirServerUrl(iss);
+
+        String redirectUrl = fhirServerConfigService.generateRedirectUrl(iss, authEndpoint, CERNER_OAUTH_CLIENT_ID, launch, CERNER_REDIRECT_URI, CERNER_SCOPE);
+        log.info("redirectUrl generated: {}", redirectUrl);
+
+        return Response.seeOther(URI.create(redirectUrl)).build();
+    }
+
+    // code
+    private Response handleCode(String code) throws IOException {
+        log.info("Received Cerner OAuth code: {}", code);
+        CernerOAuthTokenResponse cernerOAuthTokenResponse = null;
+
+        try {
+            cernerOAuthTokenResponse = tokenService.exchangeCernerCodeForToken(sessionService.getCernerTokenEndpoint(), code);
+            sessionService.setCernerAccessToken(cernerOAuthTokenResponse.accessToken());
+            sessionService.setCernerPatientBanner(cernerOAuthTokenResponse.needPatientBanner());
+
+            log.info("--- SECURITY ALERT access_token: {}", cernerOAuthTokenResponse.accessToken());
+            log.info("--- SECURITY ALERT idToken: {}", cernerOAuthTokenResponse.idToken());
+            log.info("--- patientId: {}", cernerOAuthTokenResponse.patient());
+            log.info("--- tokenType: {}", cernerOAuthTokenResponse.tokenType());
+            log.info("--- needPatientBanner: {}", cernerOAuthTokenResponse.needPatientBanner());
+            log.info("--- smartStyleUrl: {}", cernerOAuthTokenResponse.smartStyleUrl());
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return Response.seeOther(URI.create("cerner/patient-info?patientId=" + cernerOAuthTokenResponse.patient())).build();
     }
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response cerner(@QueryParam("iss") String iss, @QueryParam("launch") String launch, @QueryParam("code") String code) throws IOException, URISyntaxException {
 
+        // iss + launch
         if (StringUtils.isNoneBlank(iss, launch)) {
-            JsonNode serverInfo = fhirServerConfigService.fetchFhirServerConfig(iss);
-            String authEndpoint = serverInfo.get("authorization_endpoint").textValue();
-            String tokenEndpoint = serverInfo.get("token_endpoint").textValue();
-
-            sessionService.setCernerTokenEndpoint(tokenEndpoint);
-            sessionService.setCernerFhirServerUrl(iss);
-
-            String redirectUrl = fhirServerConfigService.generateRedirectUrl(iss, authEndpoint, CERNER_OAUTH_CLIENT_ID, launch, CERNER_REDIRECT_URI, CERNER_SCOPE);
-            log.info("redirectUrl generated: {}", redirectUrl);
-
-            return Response.seeOther(URI.create(redirectUrl)).build();
+            return handleIssAndLaunch(iss, launch);
         }
 
+        // code
         if (StringUtils.isNotBlank(code)) {
-            log.info("Received Cerner OAuth code: {}", code);
-            CernerOAuthTokenResponse cernerOAuthTokenResponse = null;
-
-            try {
-                cernerOAuthTokenResponse = tokenService.exchangeCernerCodeForToken(sessionService.getCernerTokenEndpoint(), code);
-                sessionService.setCernerAccessToken(cernerOAuthTokenResponse.accessToken());
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-
-            return Response.seeOther(URI.create("cerner/patient-info?patientId=" + cernerOAuthTokenResponse.patient())).build();
+            return handleCode(code);
         }
 
-        TemplateInstance templateInstance = cernerTemplate.instance();
-        return Response.ok(templateInstance).build();
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 }

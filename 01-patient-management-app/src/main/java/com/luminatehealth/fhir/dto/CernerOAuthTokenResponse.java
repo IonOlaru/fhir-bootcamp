@@ -10,5 +10,7 @@ public record CernerOAuthTokenResponse(
         @JsonProperty("expires_in") int expiresIn,
         @JsonProperty("scope") String scope,
         @JsonProperty("id_token") String idToken,
-        @JsonProperty("patient") String patient
+        @JsonProperty("patient") String patient,
+        @JsonProperty("need_patient_banner") Boolean needPatientBanner,
+        @JsonProperty("smart_style_url") String smartStyleUrl
 ) {}

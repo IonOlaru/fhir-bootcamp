@@ -1,6 +1,12 @@
 {#include base-template}
     {#title}Cerner info{/title}
     {#body}
+        {#if showBanner }
+        <div style="background-color: #5365db; font-size: large; color: white; padding: 20px;">
+            Name: <b>{patient.firstName}, {patient.lastName}</b> | DoB: <b>{patient.dob}</b> | Gender: <b>{patient.gender}</b>
+        </div>
+        {/if}
+
         <h1>Cerner patient info...</h1>
 
         <div class="container my-5">
