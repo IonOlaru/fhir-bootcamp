@@ -2,70 +2,57 @@
     {#title}Cerner info{/title}
     {#body}
         {#if showBanner }
-        <div style="background-color: #5365db; font-size: large; color: white; padding: 20px;">
+        <div style="background-color: #5365db; font-size: large; color: white; padding: 20px; margin-bottom: 20px;">
             Name: <b>{patient.firstName}, {patient.lastName}</b> | DoB: <b>{patient.dob}</b> | Gender: <b>{patient.gender}</b>
         </div>
         {/if}
 
-        <h1>Cerner patient info...</h1>
+        {! FLASH MESSAGE !}
+        {#if !flashMessage.isEmpty}
+            <div class="container mt-5">
+                <div class="alert alert-success">
+                    {flashMessage}
+                </div>
+            </div>
+        {/if}
 
-        <div class="container my-5">
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>Patient ID:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.id}
-                </div>
+        <form class="row g-3" method="POST" action="add-temperature">
+            <input type="hidden" name="patientId" value="{patient.id}">
+            <div>
+                Add new temperature (°C):
+                &nbsp;
+                <input type="text" name="temperatureCelsius" size="5">
+                &nbsp;
+                <input type="submit" value=" - ADD - ">
             </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>First name:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.firstName}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>Other first names:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.otherFirstNames}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>Last name:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.lastName}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>DOB:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.dob}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>Phone:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.phone}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 text-end">
-                    <strong>Gender:</strong>
-                </div>
-                <div class="col-6 text-start">
-                    {patient.gender}
-                </div>
-            </div>
+        </form>
+
+        {!LAB_RESULTS VITAL SIGNS!}
+        <div>
+            <h4>Vital signs</h4>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr style="background-color: lightgrey;">
+                    <th scope="row">#</th>
+                    <th scope="row">Text</th>
+                    <th scope="row">Date/Time</th>
+                    <th scope="row">Value</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {! -- START ITERATING !}
+                {#each vitalSignsObservations}
+                    <tr>
+                        <td>{it_count}</td>
+                        <td>{it.text}</td>
+                        <td>{it.effectiveDateTime}</td>
+                        <td>{it.value} {it.unit}</td>
+                    </tr>
+                {/each}
+                {! -- END ITERATING !}
+                </tbody>
+            </table>
         </div>
 
     {/body}

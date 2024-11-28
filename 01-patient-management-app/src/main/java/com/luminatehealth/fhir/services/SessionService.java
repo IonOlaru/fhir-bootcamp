@@ -11,6 +11,7 @@ public class SessionService {
     public static final String SESSION_CERNER_TOKEN_ENDPOINT = "SESSION_CERNER_TOKEN_ENDPOINT";
     public static final String SESSION_CERNER_ACCESS_TOKEN = "SESSION_CERNER_ACCESS_TOKEN";
     public static final String SESSION_CERNER_PATIENT_BANNER = "SESSION_CERNER_PATIENT_BANNER";
+    public static final String SESSION_FLASH_MESSAGE = "SESSION_FLASH_MESSAGE";
 
     @Inject
     HttpServletRequest request;
@@ -49,6 +50,19 @@ public class SessionService {
 
     public boolean getCernerPatientBanner() {
         return Boolean.TRUE.equals(request.getSession().getAttribute(SESSION_CERNER_PATIENT_BANNER));
+    }
+
+    public void addFlashMessage(String message) {
+        request.getSession().setAttribute(SESSION_FLASH_MESSAGE, message);
+    }
+
+    public String getFlashMessage() {
+        Object flashMessage = request.getSession().getAttribute(SESSION_FLASH_MESSAGE);
+        if (flashMessage != null) {
+            request.getSession().removeAttribute(SESSION_FLASH_MESSAGE);
+            return flashMessage.toString();
+        }
+        return null;
     }
 
 }

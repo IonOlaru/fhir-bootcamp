@@ -3,8 +3,10 @@ package com.luminatehealth.fhir.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.luminatehealth.fhir.client.LiteFhirClientWithAuthToken;
+import com.luminatehealth.fhir.convertors.FHIRObservationToDTOConverter;
 import com.luminatehealth.fhir.convertors.FHIRPatientToDTOConverter;
 import com.luminatehealth.fhir.dto.CernerOAuthTokenResponse;
+import com.luminatehealth.fhir.dto.ObservationDto;
 import com.luminatehealth.fhir.dto.PatientDto;
 import com.luminatehealth.fhir.services.FhirServerConfigService;
 import com.luminatehealth.fhir.services.SessionService;
@@ -13,14 +15,12 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 @Path("/cerner")
 public class CernerController {
 
     private static final Logger log = LoggerFactory.getLogger(CernerController.class);
+    private static final FHIRObservationToDTOConverter observationConverter = new FHIRObservationToDTOConverter();
 
     @ConfigProperty(name = "cerner_scope")
     String CERNER_SCOPE;
@@ -70,14 +72,30 @@ public class CernerController {
 
         String fhirServerUrl = sessionService.getCernerFhirServerUrl();
         String accessToken = sessionService.getCernerAccessToken();
+        String flashMessage = sessionService.getFlashMessage();
 
+        // get the fhir server
         LiteFhirClientWithAuthToken<Patient> liteFhirClientWithAuthToken = LiteFhirClientWithAuthToken.getFhirServer(fhirServerUrl);
-        Patient patient = liteFhirClientWithAuthToken.read(patientId, Patient.class, accessToken);
 
+        // read patient info
+        Patient patient = liteFhirClientWithAuthToken.read(patientId, Patient.class, accessToken);
         PatientDto patientDto = patientConverter.convert(patient);
+
+        // read patient observations
+        List<ObservationDto> vitalSignsObservations = liteFhirClientWithAuthToken.getLabResultsByPatientId(patientId, "vital-signs",  accessToken).getEntry()
+                .stream()
+                .filter(x -> x.getResource().getResourceType().name().equals("Observation"))
+                .map(x -> observationConverter.convert((Observation) x.getResource()))
+                .toList();;
+
+        log.info("Patient id={} has {} observations", patientId, vitalSignsObservations.size());
+
+        // response
         return Response.ok(
                 templateInstance
                         .data("patient", patientDto)
+                        .data("vitalSignsObservations", vitalSignsObservations)
+                        .data("flashMessage", StringUtils.isNotBlank(flashMessage) ? flashMessage : "")
                         .data("showBanner", sessionService.getCernerPatientBanner())
         ).build();
     }
@@ -140,4 +158,18 @@ public class CernerController {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @POST
+    @Path("/add-temperature")
+    @Produces(MediaType.TEXT_HTML)
+    public Response addTemperature(@FormParam("patientId") String patientId,
+                                   @FormParam("temperatureCelsius") String cTemp) {
+
+        String fhirServerUrl = sessionService.getCernerFhirServerUrl();
+        String accessToken = sessionService.getCernerAccessToken();
+        LiteFhirClientWithAuthToken<Patient> liteFhirClientWithAuthToken = LiteFhirClientWithAuthToken.getFhirServer(fhirServerUrl);
+        liteFhirClientWithAuthToken.addBodyTemperatureObservationInCelsius(patientId, Double.parseDouble(cTemp), accessToken);
+        sessionService.addFlashMessage("Temperature added successfully: " + cTemp + " °C");
+
+        return Response.seeOther(URI.create("cerner/patient-info?patientId=" + patientId)).build();
+    }
 }
