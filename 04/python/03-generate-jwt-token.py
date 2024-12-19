@@ -80,10 +80,10 @@ payload = {
 }
 
 token = jwt.encode(payload, private_key, algorithm='RS384')
-print(f"JWT: {token}")
+print(f"jwt_token:\n{token}")
 print()
 
-headers = {
+jwt_post_headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
 }
 
@@ -93,9 +93,9 @@ data = {
     'client_assertion': token
 }
 
-response = requests.post(url=token_url, headers=headers, data=data).json()
+response = requests.post(url=token_url, headers=jwt_post_headers, data=data).json()
 access_token = response['access_token']
-print(f"access_token: {access_token}")
+print(f"access_token:\n{access_token}")
 print()
 
 # initiate bulk request
@@ -111,15 +111,19 @@ if bulk_init_response.status_code == 202:
     location_url = bulk_init_response.headers.get('Content-Location')
     if location_url:
         print(f"Polling URL: {location_url}")
-
+        poll_headers = {
+            'Authorization': f"Bearer {access_token}"
+        }
         while True:
-            poll_response = requests.get(location_url)
+            poll_response = requests.get(location_url, headers=poll_headers)
             if poll_response.status_code == 200:
                 print("Received 200 OK. Here is the JSON response:")
                 print(poll_response.json())
                 break
             else:
                 print(f"Waiting... Current status: {poll_response.status_code}")
+                if poll_response.status_code == 202:
+                    print(f"Progress: {poll_response.headers.get('X-Progress')}")
                 time.sleep(5)
     else:
         print("Content-Location header is missing in the response.")
