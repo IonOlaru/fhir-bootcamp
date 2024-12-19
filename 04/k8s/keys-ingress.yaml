@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-ingress
+  namespace: fhir-bootcamp
+  annotations:
+    spec.ingressClassName: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.middlewares: |
+      kube-system-redirect-https@kubernetescrd
+spec:
+  rules:
+    - host: local-fhir-patient-app.luminatehealth.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-keys-json-service
+                port:
+                  number: 80
+  tls:
+    - secretName: local-fhir-patient-app.luminatehealth.com-tls
+      hosts:
+        - local-fhir-patient-app.luminatehealth.com

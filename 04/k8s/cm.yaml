@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-keys-json
+  namespace: fhir-bootcamp
+data:
+  keys.json: |
+    {
+      "keys": [
+        {
+          "kty": "RSA",
+          "kid": "key-0",
+          "use": "sig",
+          "alg": "RS256",
+          "n": "uG6vxt2MlnKOgcTu83TptU_DDRbfECf8rvetvK0NpMbdayX7qqqoBlZsT-lIsqjzbcbuzOhoJpIRncSTq5_2KfXcArJCuXj1Xw5ZFxfTazLVCZyZ6JTR2hsftP9mqs0OBXflzV_jQYaGWto5nN8Tb0BFiUvdwFhDj50jQcQ4O14kSkeBE8UfP5LmoNGKOkJ3MJgLgA8zUBQeGkzf38n735dPm4N_X4qdHDCkqi5YBW8TRSi9E5MQbZ77EdExtT_dcmYh-KCs6Os8149jaYNQUzc3GEb-PBMC1qrEzl_vNyGE1OR9LY_V1Isywm3pQT_czTLfm7wsQpS0pLiOFQ4PSw",
+          "e": "AQAB"
+        }
+      ]
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: fhir-bootcamp
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name localhost;
+
+      location /jwks {
+        add_header Content-Type application/json;
+        alias /usr/share/nginx/html/keys.json;
+        try_files $uri =404;
+      }
+    
+    }
+---

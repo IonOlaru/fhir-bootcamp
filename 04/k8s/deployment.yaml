@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-hello-deployment
+  namespace: fhir-bootcamp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-keys-json
+  template:
+    metadata:
+      labels:
+        app: nginx-keys-json
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: html-config
+              mountPath: /usr/share/nginx/html/
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/
+      volumes:
+        - name: html-config
+          configMap:
+            name: nginx-keys-json
+            items:
+              - key: keys.json
+                path: keys.json
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+            items:
+              - key: default.conf
+                path: default.conf
