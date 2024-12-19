@@ -60,6 +60,17 @@ cf-ray: 8f4483d0bf65e602-IAD
 }
 
 ```
+
+Run the script manually
+```
+python3 02-get-data-and-email.py
+```
+
+Use a cron to schedule the job every day at midnight
+```
+(crontab -l; echo "0 0 * * * python3 02-get-data-and-email.py") | crontab -
+```
 ## Docs
 - https://developers.yubico.com/PIV/Guides/Generating_keys_using_OpenSSL.html
 - https://fhir.epic.com/Documentation?docId=oauth2&section=Backend-Oauth2_Creating-JWT
+- https://hl7.org/fhir/r4/group.html
