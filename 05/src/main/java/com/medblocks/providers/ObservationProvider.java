@@ -1,18 +1,18 @@
 package com.medblocks.providers;
 
-import java.sql.*;
-import java.util.List;
-
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
+import ca.uhn.fhir.rest.annotation.Search;
+import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import com.medblocks.utils.ConnectionManager;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Observation;
 
-import ca.uhn.fhir.rest.annotation.Search;
-import ca.uhn.fhir.rest.server.IResourceProvider;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ObservationProvider implements IResourceProvider {
     private final Connection connection = ConnectionManager.getInstance().getDbConnection();
