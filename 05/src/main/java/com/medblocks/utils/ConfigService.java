@@ -14,6 +14,7 @@ public class ConfigService {
     public static final String CONFIG_DATA_GENERATE_PATIENTS = "app.data.generate.patients";
     public static final String CONFIG_DATA_GENERATE_OBSERVATIONS = "app.data.generate.observations";
     public static final String CONFIG_DATA_GENERATE_DATA = "app.data.generate.data";
+    public static final String CONFIG_DB_TYPE = "app.db.type";
 
     // pgSQL properties
     public static final String CONFIG_PG_JDBC_DRIVER = "pg.jdbcDriver";
@@ -120,5 +121,9 @@ public class ConfigService {
 
     public boolean getConfigDataGenerateData() {
         return Boolean.parseBoolean(settings.getProperty(CONFIG_DATA_GENERATE_DATA));
+    }
+
+    public String getConfigAppDbType() {
+        return settings.getProperty(CONFIG_DB_TYPE);
     }
 }

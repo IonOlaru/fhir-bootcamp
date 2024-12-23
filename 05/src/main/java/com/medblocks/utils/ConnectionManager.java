@@ -16,8 +16,6 @@ public class ConnectionManager implements Configurable {
     private final static String DB_CONNECTION_POSTGRES = "POSTGRES";
     private final static String DB_CONNECTION_YUGA_BYTE = "YUGABYTE";
 
-    private final static String DB_CONNECTION_IN_USE = DB_CONNECTION_YUGA_BYTE;
-
     private static class Holder {
         private static final ConnectionManager INSTANCE = new ConnectionManager();
     }
@@ -27,10 +25,10 @@ public class ConnectionManager implements Configurable {
     }
 
     public Connection getDbConnection() throws SQLException, ClassNotFoundException {
-        if (DB_CONNECTION_IN_USE.equals(DB_CONNECTION_POSTGRES))
+        if (configService.getConfigAppDbType().equals(DB_CONNECTION_POSTGRES))
             return getPostgresConnection();
 
-        if (DB_CONNECTION_IN_USE.equals(DB_CONNECTION_YUGA_BYTE))
+        if (configService.getConfigAppDbType().equals(DB_CONNECTION_YUGA_BYTE))
             return getYugaByteConnection();
 
         throw new RuntimeException("Choose a DB connection type.");
@@ -40,8 +38,8 @@ public class ConnectionManager implements Configurable {
         if (connectionPgSQL != null)
             return connectionPgSQL;
 
+        log.info("Establishing Postgres connection...");
         Class.forName(configService.getPgJdbcDriver());
-
         String jdbcUrl = configService.getPgJdbcUrl();
         String username = configService.getPgUsername();
         String password = configService.getPgPassword();
@@ -54,8 +52,8 @@ public class ConnectionManager implements Configurable {
         if (connectionYugaByte != null)
             return connectionYugaByte;
 
+        log.info("Establishing Yugabyte connection...");
         YBClusterAwareDataSource ds = new YBClusterAwareDataSource();
-
         ds.setUrl("jdbc:yugabytedb://" + configService.getYbHost() + ":" + configService.getYbPort() + "/" + configService.getYbDatabase());
         ds.setUser(configService.getYbUsername());
         ds.setPassword(configService.getYbPassword());
