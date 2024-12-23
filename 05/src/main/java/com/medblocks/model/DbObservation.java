@@ -1,4 +1,4 @@
-package com.medblocks;
+package com.medblocks.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

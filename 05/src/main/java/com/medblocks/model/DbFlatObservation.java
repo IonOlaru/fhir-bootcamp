@@ -1,4 +1,4 @@
-package com.medblocks;
+package com.medblocks.model;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.medblocks;
+package com.medblocks.utils;
 
 import lombok.extern.slf4j.Slf4j;
 

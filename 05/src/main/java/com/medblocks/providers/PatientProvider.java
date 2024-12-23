@@ -1,41 +1,29 @@
-package com.medblocks;
+package com.medblocks.providers;
 
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
+import com.medblocks.utils.ConnectionManager;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PatientResourceProvider implements IResourceProvider {
+public class PatientProvider implements IResourceProvider {
     private final Connection connection = ConnectionManager.getInstance().getDbConnection();
+    private final PatientProviderHelper patientProviderHelper = new PatientProviderHelper();
 
-    public PatientResourceProvider() throws SQLException, ClassNotFoundException {
+    public PatientProvider() throws SQLException, ClassNotFoundException {
     }
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
         return Patient.class;
-    }
-
-    private Patient convertResultSetToPatient(ResultSet result) throws SQLException {
-        String id = result.getString("id");
-        String first_name = result.getString("first_name");
-        String last_name = result.getString("last_name");
-        Date dob = result.getDate("date_of_birth");
-
-        Patient patient = new Patient();
-        patient.setId(id);
-        patient.addName().setFamily(last_name).addGiven(first_name).setText(first_name + " " + last_name);
-        patient.setBirthDate(dob);
-
-        return patient;
     }
 
     @Read()
@@ -44,7 +32,7 @@ public class PatientResourceProvider implements IResourceProvider {
         statement.setString(1, theId.getIdPart());
         ResultSet result = statement.executeQuery();
         if (result.next()) {
-            Patient patient = convertResultSetToPatient(result);
+            Patient patient = patientProviderHelper.convertResultSetToPatient(result);
             return patient;
         } else {
             throw new ResourceNotFoundException(theId);
@@ -57,7 +45,7 @@ public class PatientResourceProvider implements IResourceProvider {
         Statement statement = connection.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM patients;");
         while (result.next()) {
-            Patient patient = convertResultSetToPatient(result);
+            Patient patient = patientProviderHelper.convertResultSetToPatient(result);
             patients.add(patient);
         }
         return patients;

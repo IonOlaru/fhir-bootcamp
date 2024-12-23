@@ -1,31 +1,25 @@
-package com.medblocks;
+package com.medblocks.providers;
 
-import java.sql.*;
+import com.medblocks.utils.ConnectionManager;
+import com.medblocks.model.DbFlatObservation;
+import com.medblocks.model.DbObservation;
+import com.medblocks.utils.MigrationService;
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.r4.model.Observation;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import ca.uhn.fhir.rest.annotation.IdParam;
-import ca.uhn.fhir.rest.annotation.Read;
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Observation;
-
-import ca.uhn.fhir.rest.annotation.Search;
-import ca.uhn.fhir.rest.server.IResourceProvider;
-
-public class ObservationProvider implements IResourceProvider {
+public class ObservationProviderHelper {
     private final Connection connection = ConnectionManager.getInstance().getDbConnection();
 
-    @Override
-    public Class<? extends IBaseResource> getResourceType() {
-        return Observation.class;
-    }
-
-    public ObservationProvider() throws SQLException, ClassNotFoundException {
+    public ObservationProviderHelper() throws SQLException, ClassNotFoundException {
     }
 
     private Observation convertBloodPressureToObservation(DbObservation dbObservation) {
@@ -93,7 +87,7 @@ public class ObservationProvider implements IResourceProvider {
         return null;
     }
 
-    private List<Observation> getAllObservationsFromDb(String observationId) throws SQLException {
+    List<Observation> getAllObservationsFromDb(String observationId) throws SQLException {
         String selectObservationsSql = "SELECT " +
                 "   o.id AS observation_id, " +
                 "   o.patient_id, " +
@@ -156,20 +150,5 @@ public class ObservationProvider implements IResourceProvider {
         return groupedObservations.stream().map(x -> convertToFHIRObservation(x)).collect(Collectors.toList());
     }
 
-    @Search
-    public List<Observation> getAllObservations() throws SQLException {
-        return getAllObservationsFromDb(null);
-    }
-
-    @Read
-    public Observation getObservation(@IdParam IdType id) throws SQLException {
-        List<Observation> allObservations = getAllObservationsFromDb(id.getIdPart());
-
-        if (allObservations.isEmpty()) {
-            throw new ResourceNotFoundException(id);
-        }
-
-        return allObservations.get(0);
-    }
 }
 

@@ -1,8 +1,12 @@
-package com.medblocks;
+package com.medblocks.web;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
+import com.medblocks.utils.Configurable;
+import com.medblocks.utils.MigrationService;
+import com.medblocks.providers.ObservationProvider;
+import com.medblocks.providers.PatientProvider;
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +25,7 @@ public class FhirServlet extends RestfulServer implements Configurable {
             }
 
             // providers
-            registerProvider(new PatientResourceProvider());
+            registerProvider(new PatientProvider());
             registerProvider(new ObservationProvider());
 
             // interceptors

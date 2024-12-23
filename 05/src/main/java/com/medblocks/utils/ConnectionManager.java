@@ -1,4 +1,4 @@
-package com.medblocks;
+package com.medblocks.utils;
 
 import com.yugabyte.ysql.YBClusterAwareDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ public class ConnectionManager implements Configurable {
     private final static String DB_CONNECTION_POSTGRES = "POSTGRES";
     private final static String DB_CONNECTION_YUGA_BYTE = "YUGABYTE";
 
-    private final static String DB_CONNECTION_IN_USE = DB_CONNECTION_POSTGRES;
+    private final static String DB_CONNECTION_IN_USE = DB_CONNECTION_YUGA_BYTE;
 
     private static class Holder {
         private static final ConnectionManager INSTANCE = new ConnectionManager();
@@ -26,7 +26,7 @@ public class ConnectionManager implements Configurable {
         return ConnectionManager.Holder.INSTANCE;
     }
 
-    Connection getDbConnection() throws SQLException, ClassNotFoundException {
+    public Connection getDbConnection() throws SQLException, ClassNotFoundException {
         if (DB_CONNECTION_IN_USE.equals(DB_CONNECTION_POSTGRES))
             return getPostgresConnection();
 
